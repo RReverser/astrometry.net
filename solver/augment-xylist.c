@@ -37,6 +37,7 @@
 #include "fits-guess-scale.h"
 #include "image2xy-files.h"
 #include "resort-xylist.h"
+#include "xylist-filter.h"
 #include "an-opts.h"
 #include "augment-xylist.h"
 #include "log.h"
@@ -179,6 +180,8 @@ static an_option_t options[] = {
      "don't remove horizontal and vertical overdensities of sources."},
     {':', "uniformize", required_argument, "int",
      "select sources uniformly using roughly this many boxes (0=disable; default 10)"},
+    {'\x98', "python-filters", no_argument, NULL,
+     "run the Python programs \"removelines\" and \"uniformize\" instead of the C versions built into the program"},
     {'\x81', "no-verify-uniformize", no_argument, NULL,
      "don't uniformize the field stars during verification"},
     {'\x83', "no-verify-dedup", no_argument, NULL,
@@ -341,6 +344,9 @@ int augment_xylist_parse_option(char argchar, char* optarg,
         break;
     case ':':
         axy->uniformize = atoi(optarg);
+        break;
+    case '\x98':
+        axy->python_filters = TRUE;
         break;
     case '3':
         axy->ra_center = atora(optarg);
@@ -1054,16 +1060,26 @@ int augment_xylist(augment_xylist_t* axy,
         }
         logverb("Removing lines of (spurious) sources from xylist \"%s\", writing to \"%s\"\n",
                 xylsfn, nolinesfn);
-        append_executable(cmd, "removelines", me);
-        if (axy->xcol)
-            sl_appendf(cmd, "-X %s", axy->xcol);
-        if (axy->ycol)
-            sl_appendf(cmd, "-Y %s", axy->ycol);
-        //if (axy->extension)
-        //    sl_appendf(cmd, "-e %i", axy->extension);
-        append_escape(cmd, xylsfn);
-        append_escape(cmd, nolinesfn);
-        run(cmd, verbose);
+        if (axy->python_filters) {
+            append_executable(cmd, "removelines", me);
+            if (axy->xcol)
+                sl_appendf(cmd, "-X %s", axy->xcol);
+            if (axy->ycol)
+                sl_appendf(cmd, "-Y %s", axy->ycol);
+            //if (axy->extension)
+            //    sl_appendf(cmd, "-e %i", axy->extension);
+            append_escape(cmd, xylsfn);
+            append_escape(cmd, nolinesfn);
+            run(cmd, verbose);
+        } else {
+            if (removelines_xylist(xylsfn, nolinesfn,
+                                   axy->xcol ? axy->xcol : "X",
+                                   axy->ycol ? axy->ycol : "Y",
+                                   REMOVELINES_DEFAULT_CUT)) {
+                ERROR("Failed to remove lines of sources from xylist \"%s\"", xylsfn);
+                return -1;
+            }
+        }
         xylsfn = nolinesfn;
     }
 
@@ -1113,17 +1129,26 @@ int augment_xylist(augment_xylist_t* axy,
             unixylsfn = create_temp_file("uniform", axy->tempdir);
             sl_append_nocopy(tempfiles, unixylsfn);
         }
-        append_executable(cmd, "uniformize", me);
-        sl_appendf(cmd, "-n %i", axy->uniformize);
-        if (axy->xcol)
-            sl_appendf(cmd, "-X %s", axy->xcol);
-        if (axy->ycol)
-            sl_appendf(cmd, "-Y %s", axy->ycol);
-        //if (axy->extension)
-        //    sl_appendf(cmd, "-e %i", axy->extension);
-        append_escape(cmd, xylsfn);
-        append_escape(cmd, unixylsfn);
-        run(cmd, verbose);
+        if (axy->python_filters) {
+            append_executable(cmd, "uniformize", me);
+            sl_appendf(cmd, "-n %i", axy->uniformize);
+            if (axy->xcol)
+                sl_appendf(cmd, "-X %s", axy->xcol);
+            if (axy->ycol)
+                sl_appendf(cmd, "-Y %s", axy->ycol);
+            //if (axy->extension)
+            //    sl_appendf(cmd, "-e %i", axy->extension);
+            append_escape(cmd, xylsfn);
+            append_escape(cmd, unixylsfn);
+            run(cmd, verbose);
+        } else {
+            if (uniformize_xylist(xylsfn, unixylsfn, axy->uniformize,
+                                  axy->xcol ? axy->xcol : "X",
+                                  axy->ycol ? axy->ycol : "Y")) {
+                ERROR("Failed to uniformize xylist \"%s\"", xylsfn);
+                return -1;
+            }
+        }
         xylsfn = unixylsfn;
     }
 

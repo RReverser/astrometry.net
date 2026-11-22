@@ -101,6 +101,9 @@ struct augment_xylist_s {
     int tweakorder;
 
     anbool no_removelines;
+    // run the Python programs "removelines" and "uniformize" rather than
+    // the C functions of xylist-filter.h
+    anbool python_filters;
     anbool no_bg_subtraction;
 
     int uniformize;
