@@ -58,7 +58,7 @@ ANFILES_OBJ += multiindex.o index.o indexset.o \
 ANFILES_DEPS += $(QFITS_LIB)
 
 ANUTILS_OBJ += fitsioutils.o sip_qfits.o fitstable.o fitsbin.o fitsfile.o \
-	tic.o
+	tic.o xylist-filter.o
 ANUTILS_DEPS += $(QFITS_LIB)
 endif
 
@@ -115,7 +115,8 @@ QFITS_UTILS := fits-column-merge subtable fitsgetext wcsinfo
 
 PROGS := an-fitstopnm an-pnmtofits downsample-fits \
 	fits-flip-endian hpsplit wcs-to-tan	\
-	get-healpix $(QFITS_UTILS) pad-file wcs-match wcs-pv2sip
+	get-healpix $(QFITS_UTILS) pad-file wcs-match wcs-pv2sip \
+	removelines-xylist uniformize-xylist
 
 MAIN_PROGS := wcs-resample tabsort wcs-xy2rd wcs-rd2xy fit-wcs wcs-pv2sip
 
@@ -134,7 +135,8 @@ ANUTILS_H := an-bool.h an-endian.h an-opts.h an-thread-pthreads.h \
 	starxy.h tic.h \
 	xylist.h coadd.h convolve-image.h resample.h multiindex.h scamp.h \
 	ctmf.h dimage.h image2xy.h simplexy-common.h simplexy.h \
-	tabsort.h wcs-rd2xy.h wcs-xy2rd.h wcs-pv2sip.h matchobj.h matchfile.h
+	tabsort.h wcs-rd2xy.h wcs-xy2rd.h wcs-pv2sip.h matchobj.h matchfile.h \
+	xylist-filter.h
 
 ANUTILS_H_PATH := $(addprefix $(INCLUDE_DIR)/,$(ANUTILS_H))
 
