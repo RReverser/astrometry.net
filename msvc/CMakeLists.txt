@@ -203,3 +203,11 @@ an_program(startree solver/startree-main.c)
 # Checks of the compatibility layer: run test_compat.exe from the build directory.
 add_executable(test_compat ${CMAKE_CURRENT_SOURCE_DIR}/test/test_compat.c)
 target_link_libraries(test_compat ancompat)
+
+# ---- an-solve ---------------------------------------------------------------
+# New code, not an upstream program: see README.md. `augment-xylist.c` is not
+# in ENGINE_OBJS upstream either: `solve-field` and `augment-xylist` link it
+# directly.
+add_executable(an-solve ${CMAKE_CURRENT_SOURCE_DIR}/an-solve.c ${ROOT}/solver/augment-xylist.c)
+target_include_directories(an-solve PRIVATE ${ROOT}/solver)
+target_link_libraries(an-solve ${AN_LIBS})

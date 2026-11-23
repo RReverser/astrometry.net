@@ -39,6 +39,11 @@ Not built: `image2xy` (needs cfitsio), `solve-field` and `augment-xylist`
 (start other programs through a shell), `an-fitstopnm`, everything that
 needs netpbm or cairo, the index building programs, and the Python modules.
 
+`an-solve.exe` (`msvc/an-solve.c`) is new code. It solves one FITS or binary
+PGM image in one process, as `solve-field --no-plots` does, but needs
+`--no-remove-lines --uniformize 0`: upstream has `removelines` and
+`uniformize` only as Python programs.
+
 ## Compatibility layer
 
 `msvc/compat` comes first on the include path. It holds headers with POSIX
