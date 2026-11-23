@@ -391,6 +391,11 @@ static int readfd(int fd, char* buf, int NB, char** pcursor,
 }
 
 int run_command_get_outputs(const char* cmd, sl** outlines, sl** errlines) {
+#ifdef _WIN32
+    ERROR("Running a command is not supported on Windows: %s", cmd);
+    return -1;
+}
+#else
     int outpipe[2];
     int errpipe[2];
     pid_t pid;
@@ -582,6 +587,7 @@ int run_command_get_outputs(const char* cmd, sl** outlines, sl** errlines) {
     
     return 0;
 }
+#endif
 
 int mkdir_p(const char* dirpath) {
     sl* tomake = sl_new(4);

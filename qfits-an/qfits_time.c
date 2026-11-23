@@ -33,7 +33,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifndef _WIN32
 #include <pwd.h>
+#endif
 #include <unistd.h>
 #include <sys/time.h>
 
