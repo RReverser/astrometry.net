@@ -199,3 +199,7 @@ an_program(fits-guess-scale solver/fits-guess-scale-main.c)
 an_program(new-wcs solver/new-wcs-main.c)
 an_program(resort-xylist solver/resort-xylist-main.c)
 an_program(startree solver/startree-main.c)
+
+# Checks of the compatibility layer: run test_compat.exe from the build directory.
+add_executable(test_compat ${CMAKE_CURRENT_SOURCE_DIR}/test/test_compat.c)
+target_link_libraries(test_compat ancompat)
